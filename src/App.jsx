@@ -11,7 +11,6 @@ import {
   useRecoilState,
   useRecoilValue,
   RecoilRoot,
-  useSetRecoilState,
 } from "recoil";
 
 import {
@@ -21,7 +20,6 @@ import {
   todosAtom,
   todoFilterAtom
 } from "./store/atoms/todos";
-import { useEffect } from "react";
 
 function App() {
   return (
