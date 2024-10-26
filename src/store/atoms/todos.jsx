@@ -21,32 +21,25 @@ export const todosAtom = atom({
     {
       title: "Go to GYM",
       description: "Pull Push legs Day",
+      status: "pending",
     },
     {
       title: "Go to Office",
       description: "Deployment Day",
-    }
+      status: "pending",
+    },
   ],
 });
 
-
-/**
- * Retrieves the list of todos from the 'todosAtom' state.
- * If a filter is applied, it returns the filtered list of todos 
- * whose titles include the filter string. Otherwise, it returns 
- * the full list of todos.
- *
- * @param {function} get - A function to access the Recoil state.
- * @returns {Array} An array of todo objects, filtered by title if a filter is present.
- */
+// Selector for filtering todos based on the search input
 export const todoFilterSelector = selector({
   key: "todoList",
-  get: ({get}) => {
+  get: ({ get }) => {
     const filter = get(todoFilterAtom);
     const todos = get(todosAtom);
     if (filter) {
-      return todos.filter(todo => todo.title.includes(filter));
+      return todos.filter((todo) => todo.title.toLowerCase().includes(filter.toLowerCase())); // Case insensitive filter
     }
     return todos;
-  }
-})
+  },
+});

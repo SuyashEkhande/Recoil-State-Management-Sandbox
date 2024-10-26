@@ -1,35 +1,14 @@
-/*
-  Create a todo application
-   - 2 input boxes title and desc - store in atom
-   - add button
-   - todos => atom
-   - filter input box -> store in atom
-   - selector (current list of todos)
-*/
-
-import {
-  useRecoilState,
-  useRecoilValue,
-  RecoilRoot,
-} from "recoil";
-
-import {
-  todoInputTitleFieldAtom,
-  todoInputDescFieldAtom,
-  todoFilterSelector,
-  todosAtom,
-  todoFilterAtom
-} from "./store/atoms/todos";
+import { useRecoilState, useRecoilValue, RecoilRoot } from "recoil";
+import { todoInputTitleFieldAtom, todoInputDescFieldAtom, todoFilterSelector, todosAtom, todoFilterAtom } from "./store/atoms/todos";
+import { useCallback } from "react";
 
 function App() {
   return (
-    <>
-      <RecoilRoot>
-        <TodoInputAndAdd />
-        <TodoFilter />
-        <TodoList />
-      </RecoilRoot> 
-    </>
+    <RecoilRoot>
+      <TodoInputAndAdd />
+      <TodoFilter />
+      <TodoList />
+    </RecoilRoot>
   );
 }
 
@@ -40,10 +19,10 @@ function TodoInputAndAdd() {
 
   const addTodo = () => {
     if (title && desc) {
-      const newTodo = { title, description: desc };
-      setTodos([...todos, newTodo]); // Add new todo to the list
-      setTitle(""); // Reset title input
-      setDesc("");  // Reset description input
+      const newTodo = { title, description: desc, status: "pending" };
+      setTodos((prevTodos) => [...prevTodos, newTodo]); // Use functional update
+      setTitle("");
+      setDesc("");
     } else {
       alert("Both Title and Description are required!");
     }
@@ -91,20 +70,41 @@ function TodoFilter() {
 }
 
 function TodoList() {
+  const [todos, setTodos] = useRecoilState(todosAtom);
   const currentTodos = useRecoilValue(todoFilterSelector);
 
-  return <div>
-    <h1>Todo List</h1>
-    <hr />
+  const toggleStatus = useCallback((index) => {
+    const updatedTodos = todos.map((todo, i) => {
+      if (i === index) {
+        return {
+          ...todo,
+          status: todo.status === "pending" ? "completed" : "pending",
+        };
+      }
+      return todo;
+    });
+  
+    setTodos(updatedTodos);
+  }, [todos, setTodos]);
+
+  return (
+    <div>
+      <h1>Todo List</h1>
+      <hr />
       <ul>
-      {currentTodos.map((todo, index) => (
-        <li key={index}>
-          <h3>{todo.title}</h3>
-          <p>{todo.description}</p>
-        </li>
-      ))}
-    </ul>
-    </div>;
+        {currentTodos.map((todo, index) => (
+          <li key={index}>
+            <h3>{todo.title}</h3>
+            <p>{todo.description}</p>
+            <p>Status: {todo.status}</p>
+            <button onClick={() => toggleStatus(index)}>
+              {todo.status === "pending" ? "Mark as Done" : "Mark as Pending"}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export default App;
